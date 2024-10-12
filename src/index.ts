@@ -1,6 +1,7 @@
+import authRouter from './routes/auth';
+import connectDB from './config/database';
 import dotenv from 'dotenv';
 import express from 'express';
-import authRouter from './routes/auth';
 import ingredientsRouter from './routes/ingredients';
 import recipesRouter from './routes/recipes';
 import uploadRouter from './routes/upload';
@@ -23,6 +24,8 @@ app.use('/upload', uploadRouter);
 app.get('/', (req, res) => {
   res.send('Welcome to the Fridge Chef API');
 });
+
+connectDB();
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
