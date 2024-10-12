@@ -1,4 +1,4 @@
-import { getAllRecipes, getRecipesByIngredients, getSpecificRecipe } from '../controllers/recipesController';
+import { addRecipe, getAllRecipes, getRecipesByIngredients, getSpecificRecipe } from '../controllers/recipesController';
 
 import { authenticateToken } from '../middleware/auth';
 import express from 'express';
@@ -85,5 +85,57 @@ router.post('/by-ingredients', authenticateToken, getRecipesByIngredients);
  *         description: Recipe not found
  */
 router.get('/:id', authenticateToken, getSpecificRecipe);
+
+/**
+ * @swagger
+ * /recipes:
+ *   post:
+ *     summary: Add a new recipe
+ *     tags: [Recipes]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - cuisine
+ *               - category
+ *               - rating
+ *               - imageUrl
+ *               - difficulty
+ *               - ingredients
+ *               - instructions
+ *             properties:
+ *               name:
+ *                 type: string
+ *               cuisine:
+ *                 type: string
+ *               category:
+ *                 type: string
+ *               rating:
+ *                 type: number
+ *               imageUrl:
+ *                 type: string
+ *               difficulty:
+ *                 type: string
+ *               ingredients:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               instructions:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Recipe added successfully
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Server error
+ */
+router.post('/', authenticateToken, addRecipe);
 
 export default router;

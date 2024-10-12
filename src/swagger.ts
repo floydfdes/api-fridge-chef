@@ -26,6 +26,7 @@ const options = {
                 },
             },
         },
+        security: [{ bearerAuth: [] }], // This line ensures the Authorize button appears
     },
     apis: ['./src/routes/*.ts'], // Path to the API routes files
 };

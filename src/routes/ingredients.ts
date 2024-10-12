@@ -1,6 +1,7 @@
+import { addIngredient, getIngredientsList } from '../controllers/ingredientsController';
+
 import { authenticateToken } from '../middleware/auth';
 import express from 'express';
-import { getIngredientsList } from '../controllers/ingredientsController';
 
 const router = express.Router();
 
@@ -19,5 +20,32 @@ const router = express.Router();
  *         description: Unauthorized
  */
 router.get('/', authenticateToken, getIngredientsList);
+
+/**
+ * @swagger
+ * /ingredients:
+ *   post:
+ *     summary: Add new ingredient
+ *     tags: [Ingredients]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               nutritionalValue:
+ *                 type: object
+ *     responses:
+ *       201:
+ *         description: Ingredient added successfully
+ *       401:
+ *         description: Unauthorized
+ */
+router.post('/', authenticateToken, addIngredient);
 
 export default router;
