@@ -1,3 +1,5 @@
+import { specs, swaggerUi } from './swagger';
+
 import authRouter from './routes/auth';
 import connectDB from './config/database';
 import dotenv from 'dotenv';
@@ -20,6 +22,7 @@ app.use('/recipes', recipesRouter);
 app.use('/users', usersRouter);
 app.use('/ingredients', ingredientsRouter);
 app.use('/upload', uploadRouter);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
 app.get('/', (req, res) => {
   res.send('Welcome to the Fridge Chef API');
