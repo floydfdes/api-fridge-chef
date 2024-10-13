@@ -2,6 +2,7 @@ import { specs, swaggerUi } from './swagger';
 
 import authRouter from './routes/auth';
 import connectDB from './config/database';
+import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
 import ingredientsRouter from './routes/ingredients';
@@ -13,6 +14,9 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Enable CORS for all routes
+app.use(cors());
 
 app.use(express.json());
 

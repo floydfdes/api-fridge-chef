@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 
 import FridgeImage from '../models/FridgeImage';
+import axios from 'axios';
 
 interface MulterRequest extends Request {
     file?: Express.Multer.File;
@@ -19,9 +20,9 @@ export const uploadFridgeImage = async (req: MulterRequest, res: Response) => {
             return res.status(400).json({ message: 'Invalid file type. Only JPEG and PNG are allowed.' });
         }
 
-        const maxSize = 2 * 1024 * 1024; // 2MB
+        const maxSize = 5 * 1024 * 1024; // 5MB
         if (req.file.size > maxSize) {
-            return res.status(400).json({ message: 'File too large. Max size is 2MB.' });
+            return res.status(400).json({ message: 'File too large. Max size is 5MB.' });
         }
 
         const userId = req.user?.id;
@@ -29,22 +30,34 @@ export const uploadFridgeImage = async (req: MulterRequest, res: Response) => {
             return res.status(401).json({ message: 'User not authenticated' });
         }
 
-        const storageUrl = process.env.STORAGE_URL || 'https://your-storage-url.com';
-        const imageUrl = `${storageUrl}/${req.file.filename}`;
+        // Convert file to base64
+        const base64Image = req.file.buffer.toString('base64');
 
+        // Save the fridge image
         const fridgeImage = new FridgeImage({
             userId,
-            imageUrl
+            imageData: base64Image
         });
-
         await fridgeImage.save();
 
+        // Analyze the image using external Python API
+        const pythonApiUrl = process.env.PYTHON_API_URL || 'http://localhost:5000/analyze-image';
+        const analysisResponse = await axios.post(pythonApiUrl, { imageData: base64Image });
+        const detectedIngredients = analysisResponse.data.ingredients;
+
+        // Find recipes based on detected ingredients using existing endpoint
+        const recipesApiUrl = `${process.env.API_BASE_URL}/recipes/by-ingredients`;
+        const recipesResponse = await axios.post(recipesApiUrl, { ingredients: detectedIngredients });
+        const recipes = recipesResponse.data;
+
         res.status(201).json({
-            imageUrl: fridgeImage.imageUrl,
-            message: 'Image uploaded successfully'
+            imageId: fridgeImage._id,
+            detectedIngredients,
+            recommendedRecipes: recipes,
+            message: 'Image uploaded successfully and recipes recommended'
         });
     } catch (error) {
-        console.error('Error uploading image:', error);
+        console.error('Error uploading image and recommending recipes:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
