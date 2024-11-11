@@ -13,7 +13,7 @@ const options = {
         },
         servers: [
             {
-                url: isDevelopment ? 'http://localhost:3000' : 'https://api.flofer.com/api/appfridgecheck',
+                url: isDevelopment ? 'http://localhost:3000' : 'https://apifridgechef.koyeb.app',
                 description: isDevelopment ? 'Development server' : 'Production server',
             },
         ],
