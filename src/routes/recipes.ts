@@ -1,7 +1,7 @@
-import { addRecipe, getAllRecipes, getRecipesByIngredients, getSpecificRecipe } from '../controllers/recipesController';
+import { addRecipe, getAllRecipes, getRecipesByCategory, getRecipesByIngredients, getSpecificRecipe } from '../controllers/recipesController';
 
-import { authenticateToken } from '../middleware/auth';
 import express from 'express';
+import { authenticateToken } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -137,5 +137,30 @@ router.get('/:id', authenticateToken, getSpecificRecipe);
  *         description: Server error
  */
 router.post('/', authenticateToken, addRecipe);
+
+/**
+ * @swagger
+ * /recipes/category/{category}:
+ *   get:
+ *     summary: Get recipes by category
+ *     tags: [Recipes]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: category
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Recipe category
+ *     responses:
+ *       200:
+ *         description: List of recipes in the specified category
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: No recipes found for this category
+ */
+router.get('/category/:category', authenticateToken, getRecipesByCategory);
 
 export default router;

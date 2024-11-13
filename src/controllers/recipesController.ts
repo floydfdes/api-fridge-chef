@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 
 import Ingredient from '../models/Ingredient';
 import Recipe from '../models/Recipe';
+import { mapSubCategoryToMainCategory } from '../utils/constants';
 
 export const getAllRecipes = async (req: Request, res: Response) => {
     try {
@@ -56,20 +57,18 @@ export const getSpecificRecipe = async (req: Request, res: Response) => {
 
 export const addRecipe = async (req: Request, res: Response) => {
     try {
-        const { name, cuisine, category, rating, imageUrl, difficulty, ingredients, instructions } = req.body;
+        const { name, cuisine, subCategory, rating, imageUrl, difficulty, ingredients, instructions } = req.body;
 
-        // Process ingredients
-        const processedIngredients = await Promise.all(ingredients.map(async (ing: { name: string, amount: string }) => {
-            let ingredient = await Ingredient.findOne({ name: ing.name });
-            if (!ingredient) {
-                ingredient = await Ingredient.create({ name: ing.name });
-            }
-            return { ingredient: ingredient._id, amount: ing.amount };
-        }));
+        const mainCategoryKey = mapSubCategoryToMainCategory(subCategory);
 
         const newRecipe = new Recipe({
-            name, cuisine, category, rating, imageUrl, difficulty,
-            ingredients: processedIngredients,
+            name,
+            cuisine,
+            category: mainCategoryKey,
+            rating,
+            imageUrl,
+            difficulty,
+            ingredients,
             instructions
         });
 
@@ -79,3 +78,20 @@ export const addRecipe = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Error adding recipe', error });
     }
 };
+
+export const getRecipesByCategory = async (req: Request, res: Response) => {
+    try {
+        const { category } = req.params;
+
+        const recipes = await Recipe.find({ category });
+
+        if (recipes.length === 0) {
+            return res.status(404).json({ message: 'No recipes found for this category' });
+        }
+
+        res.json({ recipes });
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching recipes by category', error });
+    }
+};
+
