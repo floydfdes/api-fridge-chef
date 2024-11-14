@@ -1,13 +1,16 @@
 export const mainCategories = [
-    { id: '1', name: 'Breakfast', key: 'breakfast' },
-    { id: '2', name: 'Lunch', key: 'lunch' },
-    { id: '3', name: 'Dinner', key: 'dinner' },
-    { id: '4', name: 'Snacks & Appetizers', key: 'snacksAndAppetizers' },
-    { id: '5', name: 'Desserts', key: 'desserts' },
-    { id: '6', name: 'Healthy & Dietary', key: 'healthyAndDietary' },
-    { id: '7', name: 'Quick & Easy', key: 'quickAndEasy' },
-    { id: '8', name: 'Special Occasion', key: 'specialOccasion' }
+    { id: '1', name: 'Appetizers & Starters', key: 'appetizersAndStarters' },
+    { id: '2', name: 'Main Dishes (Entrées)', key: 'mainDishes' },
+    { id: '3', name: 'Desserts & Sweets', key: 'dessertsAndSweets' },
+    { id: '4', name: 'Salads & Fresh Dishes', key: 'saladsAndFreshDishes' },
+    { id: '5', name: 'Soups, Stews & Broths', key: 'soupsAndStews' },
+    { id: '6', name: 'Breakfast & Morning Meals', key: 'breakfastAndMorningMeals' },
+    { id: '7', name: 'Rice, Grains & Pasta', key: 'riceGrainsAndPasta' },
+    { id: '8', name: 'Breads & Baked Goods', key: 'breadsAndBakedGoods' },
+    { id: '9', name: 'Beverages', key: 'beverages' },
+    { id: '10', name: 'Street Food & Snacks', key: 'streetFoodAndSnacks' }
 ];
+
 
 
 export function mapSubCategoryToMainCategory(subCategory: string) {

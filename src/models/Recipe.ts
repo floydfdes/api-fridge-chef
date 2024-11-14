@@ -8,10 +8,11 @@ interface IRecipe extends Document {
     imageUrl: string;
     difficulty: string;
     ingredients: Array<{
-        ingredient: mongoose.Types.ObjectId,
+        name: string,
         amount: string
     }>;
     instructions: string;
+    createdBy: mongoose.Types.ObjectId;
 }
 
 const recipeSchema = new Schema<IRecipe>({
@@ -22,10 +23,11 @@ const recipeSchema = new Schema<IRecipe>({
     imageUrl: { type: String, required: true },
     difficulty: { type: String, required: true },
     ingredients: [{
-        ingredient: { type: Schema.Types.ObjectId, ref: 'Ingredient', required: true },
+        name: { type: String, required: true },
         amount: { type: String, required: true }
     }],
-    instructions: { type: String, required: true }
+    instructions: { type: String, required: true },
+    createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true }
 }, { timestamps: true });
 
 export default mongoose.model<IRecipe>('Recipe', recipeSchema);

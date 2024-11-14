@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 
 import Ingredient from '../models/Ingredient';
 import Recipe from '../models/Recipe';
-import { mapSubCategoryToMainCategory } from '../utils/constants';
+import { mainCategories } from '../utils/constants';
 
 export const getAllRecipes = async (req: Request, res: Response) => {
     try {
@@ -55,21 +55,33 @@ export const getSpecificRecipe = async (req: Request, res: Response) => {
     }
 };
 
-export const addRecipe = async (req: Request, res: Response) => {
+export const addRecipe = async (req: any, res: Response) => {
     try {
-        const { name, cuisine, subCategory, rating, imageUrl, difficulty, ingredients, instructions } = req.body;
+        const { name, cuisine, category, rating, imageUrl, difficulty, ingredients, instructions } = req.body;
+        const userId = req.user?.userId;
 
-        const mainCategoryKey = mapSubCategoryToMainCategory(subCategory);
+        if (!userId) {
+            return res.status(401).json({ message: 'User not authenticated' });
+        }
+
+        // Validate category
+        const allowedCategories = mainCategories.map(cat => cat.key);
+        if (!allowedCategories.includes(category)) {
+            return res.status(400).json({
+                message: `Invalid category. Allowed categories are: ${allowedCategories.join(', ')}`
+            });
+        }
 
         const newRecipe = new Recipe({
             name,
             cuisine,
-            category: mainCategoryKey,
+            category,
             rating,
             imageUrl,
             difficulty,
             ingredients,
-            instructions
+            instructions,
+            createdBy: userId
         });
 
         const savedRecipe = await newRecipe.save();

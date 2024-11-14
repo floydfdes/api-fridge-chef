@@ -116,6 +116,7 @@ router.get('/:id', authenticateToken, getSpecificRecipe);
  *                 type: string
  *               category:
  *                 type: string
+ *                 description: Allowed categories are appetizersAndStarters, mainDishes, dessertsAndSweets, saladsAndFreshDishes, soupsAndStews, breakfastAndMorningMeals, riceGrainsAndPasta, breadsAndBakedGoods, beverages, streetFoodAndSnacks
  *               rating:
  *                 type: number
  *               imageUrl:
@@ -131,6 +132,8 @@ router.get('/:id', authenticateToken, getSpecificRecipe);
  *     responses:
  *       201:
  *         description: Recipe added successfully
+ *       400:
+ *         description: Invalid category
  *       401:
  *         description: Unauthorized
  *       500:
