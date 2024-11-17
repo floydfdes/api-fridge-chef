@@ -104,7 +104,6 @@ router.get('/:id', authenticateToken, getSpecificRecipe);
  *               - name
  *               - cuisine
  *               - category
- *               - rating
  *               - imageUrl
  *               - difficulty
  *               - ingredients
@@ -117,23 +116,27 @@ router.get('/:id', authenticateToken, getSpecificRecipe);
  *               category:
  *                 type: string
  *                 description: Allowed categories are appetizersAndStarters, mainDishes, dessertsAndSweets, saladsAndFreshDishes, soupsAndStews, breakfastAndMorningMeals, riceGrainsAndPasta, breadsAndBakedGoods, beverages, streetFoodAndSnacks
- *               rating:
- *                 type: number
  *               imageUrl:
  *                 type: string
+ *                 description: Can be a URL or base64 encoded image string
  *               difficulty:
  *                 type: string
  *               ingredients:
  *                 type: array
  *                 items:
- *                   type: string
+ *                   type: object
+ *                   properties:
+ *                     name:
+ *                       type: string
+ *                     amount:
+ *                       type: string
  *               instructions:
  *                 type: string
  *     responses:
  *       201:
  *         description: Recipe added successfully
  *       400:
- *         description: Invalid category
+ *         description: Invalid category or image
  *       401:
  *         description: Unauthorized
  *       500:

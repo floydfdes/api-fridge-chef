@@ -19,7 +19,7 @@ const recipeSchema = new Schema<IRecipe>({
     name: { type: String, required: true },
     cuisine: { type: String, required: true },
     category: { type: String, required: true },
-    rating: { type: Number, required: true },
+    rating: { type: Number, default: 0 },
     imageUrl: { type: String, required: true },
     difficulty: { type: String, required: true },
     ingredients: [{
