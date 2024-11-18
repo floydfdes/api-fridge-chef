@@ -131,3 +131,27 @@ export const getRecipesByCategory = async (req: Request, res: Response) => {
     }
 };
 
+export const searchRecipes = async (req: Request, res: Response) => {
+    try {
+        const { searchTerm } = req.query;
+
+        if (!searchTerm || typeof searchTerm !== 'string') {
+            return res.status(400).json({ message: 'Search term is required' });
+        }
+
+        const searchRegex = new RegExp(searchTerm, 'i');
+
+        const recipes = await Recipe.find({
+            $or: [
+                { name: searchRegex },
+                { cuisine: searchRegex },
+                { 'ingredients.name': searchRegex }
+            ]
+        }).populate('createdBy', 'name email profilePicture');
+
+        res.json({ recipes });
+    } catch (error) {
+        res.status(500).json({ message: 'Error searching recipes', error });
+    }
+};
+

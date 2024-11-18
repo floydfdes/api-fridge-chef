@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 
-import User from '../models/User';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import User from '../models/User';
 
 export const signup = async (req: Request, res: Response) => {
     try {
@@ -19,7 +19,11 @@ export const signup = async (req: Request, res: Response) => {
             throw new Error('JWT_SECRET is not defined');
         }
 
-        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
+        const token = jwt.sign(
+            { userId: user._id },
+            process.env.JWT_SECRET as string,
+            { expiresIn: '1h' });
+
         res.status(201).json({ id: user._id, name: user.name, email: user.email, token });
     } catch (error) {
         console.error('Error in signup:', error);
@@ -41,7 +45,11 @@ export const login = async (req: Request, res: Response) => {
         if (!isPasswordValid) {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
-        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET as string);
+        const token = jwt.sign(
+            { userId: user._id },
+            process.env.JWT_SECRET as string,
+            { expiresIn: '1h' });
+
         res.json({ id: user._id, name: user.name, email: user.email, token });
     } catch (error) {
         res.status(500).json({ message: 'Error logging in', error });

@@ -1,9 +1,36 @@
-import { addRecipe, getAllRecipes, getRecipesByCategory, getRecipesByIngredients, getSpecificRecipe } from '../controllers/recipesController';
+import { addRecipe, getAllRecipes, getRecipesByCategory, getRecipesByIngredients, getSpecificRecipe, searchRecipes } from '../controllers/recipesController';
 
 import express from 'express';
 import { authenticateToken } from '../middleware/auth';
 
 const router = express.Router();
+
+/**
+ * @swagger
+ * /recipes/search:
+ *   get:
+ *     summary: Search recipes by text
+ *     tags: [Recipes]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: searchTerm
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Text to search in recipe names, cuisines, and ingredients
+ *     responses:
+ *       200:
+ *         description: List of matching recipes
+ *       400:
+ *         description: Search term is required
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Server error
+ */
+router.get('/search', authenticateToken, searchRecipes);
 
 /**
  * @swagger
