@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 
+import Rating from '../models/Rating';
 import Recipe from '../models/Recipe';
 import { mainCategories } from '../utils/constants';
 import { processImage, validateImage } from '../utils/imageUtils';
@@ -152,6 +153,101 @@ export const searchRecipes = async (req: Request, res: Response) => {
         res.json({ recipes });
     } catch (error) {
         res.status(500).json({ message: 'Error searching recipes', error });
+    }
+};
+
+export const updateRecipe = async (req: any, res: Response) => {
+    try {
+        const { id } = req.params;
+        const userId = req.user?.userId;
+        const { name, cuisine, category, imageUrl, difficulty, ingredients, instructions } = req.body;
+
+        const recipe = await Recipe.findById(id);
+        if (!recipe) {
+            return res.status(404).json({ message: 'Recipe not found' });
+        }
+
+        if (recipe.createdBy.toString() !== userId) {
+            return res.status(403).json({ message: 'Not authorized to edit this recipe' });
+        }
+
+        let imageData = recipe.imageUrl;
+        if (imageUrl && imageUrl !== recipe.imageUrl) {
+            try {
+                const base64Image = await processImage(imageUrl);
+                validateImage(base64Image);
+                imageData = `data:image/jpeg;base64,${base64Image}`;
+            } catch (error: any) {
+                return res.status(400).json({ message: error.message });
+            }
+        }
+
+        if (category) {
+            const allowedCategories = mainCategories.map(cat => cat.key);
+            if (!allowedCategories.includes(category)) {
+                return res.status(400).json({
+                    message: `Invalid category. Allowed categories are: ${allowedCategories.join(', ')}`
+                });
+            }
+        }
+
+        const updatedRecipe = await Recipe.findByIdAndUpdate(
+            id,
+            {
+                name,
+                cuisine,
+                category,
+                imageUrl: imageData,
+                difficulty,
+                ingredients,
+                instructions
+            },
+            { new: true }
+        ).populate('createdBy', 'name email profilePicture');
+
+        res.json(updatedRecipe);
+    } catch (error) {
+        res.status(500).json({ message: 'Error updating recipe', error });
+    }
+};
+
+export const rateRecipe = async (req: any, res: Response) => {
+    try {
+        const { id } = req.params;
+        const { rating } = req.body;
+        const userId = req.user?.userId;
+
+        if (rating < 1 || rating > 5) {
+            return res.status(400).json({ message: 'Rating must be between 1 and 5' });
+        }
+
+        const recipe = await Recipe.findById(id);
+        if (!recipe) {
+            return res.status(404).json({ message: 'Recipe not found' });
+        }
+
+        if (recipe.createdBy.toString() === userId) {
+            return res.status(400).json({ message: 'Cannot rate your own recipe' });
+        }
+
+        const ratingUpdate = await Rating.findOneAndUpdate(
+            { recipe: id, user: userId },
+            { rating },
+            { upsert: true, new: true }
+        );
+
+        const ratings = await Rating.find({ recipe: id });
+        const averageRating = ratings.reduce((acc, curr) => acc + curr.rating, 0) / ratings.length;
+
+        const updatedRecipe = await Recipe.findByIdAndUpdate(
+            id,
+            { rating: Number(averageRating.toFixed(1)) },
+            { new: true }
+        ).populate('createdBy', 'name email profilePicture');
+
+        res.json(updatedRecipe);
+    } catch (error) {
+        res.status(500).json({ message: 'Error rating recipe', error });
     }
 };
 
