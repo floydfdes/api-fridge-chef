@@ -251,3 +251,24 @@ export const rateRecipe = async (req: any, res: Response) => {
     }
 };
 
+export const deleteRecipe = async (req: any, res: Response) => {
+    try {
+        const { id } = req.params;
+        const userId = req.user?.userId;
+
+        const recipe = await Recipe.findById(id);
+        if (!recipe) {
+            return res.status(404).json({ message: 'Recipe not found' });
+        }
+
+        if (recipe.createdBy.toString() !== userId) {
+            return res.status(403).json({ message: 'Not authorized to delete this recipe' });
+        }
+
+        await Recipe.findByIdAndDelete(id);
+        res.status(204).send(); // No content to send back
+    } catch (error) {
+        res.status(500).json({ message: 'Error deleting recipe', error });
+    }
+};
+

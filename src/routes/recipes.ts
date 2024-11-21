@@ -1,4 +1,4 @@
-import { addRecipe, getAllRecipes, getRecipesByCategory, getRecipesByIngredients, getSpecificRecipe, rateRecipe, searchRecipes, updateRecipe } from '../controllers/recipesController';
+import { addRecipe, deleteRecipe, getAllRecipes, getRecipesByCategory, getRecipesByIngredients, getSpecificRecipe, rateRecipe, searchRecipes, updateRecipe } from '../controllers/recipesController';
 
 import express from 'express';
 import { authenticateToken } from '../middleware/auth';
@@ -420,5 +420,32 @@ router.put('/:id', authenticateToken, updateRecipe);
  *                   type: object
  */
 router.post('/:id/rate', authenticateToken, rateRecipe);
+
+/**
+ * @swagger
+ * /recipes/{id}:
+ *   delete:
+ *     summary: Delete a specific recipe
+ *     tags: [Recipes]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Recipe ID
+ *     responses:
+ *       204:
+ *         description: Recipe deleted successfully
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Recipe not found
+ *       403:
+ *         description: Not authorized to delete this recipe
+ */
+router.delete('/:id', authenticateToken, deleteRecipe);
 
 export default router;

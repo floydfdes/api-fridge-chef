@@ -1,7 +1,7 @@
-import { getUserProfile, updateUserProfile } from '../controllers/usersController';
+import { deleteUser, getUserProfile, updateUserProfile } from '../controllers/usersController';
 
-import { authenticateToken } from '../middleware/auth';
 import express from 'express';
+import { authenticateToken } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -67,5 +67,32 @@ router.get('/:id', authenticateToken, getUserProfile);
  *         description: User not found
  */
 router.put('/:id', authenticateToken, updateUserProfile);
+
+/**
+ * @swagger
+ * /users/{id}:
+ *   delete:
+ *     summary: Delete a specific user
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID
+ *     responses:
+ *       204:
+ *         description: User deleted successfully
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: User not found
+ *       403:
+ *         description: Not authorized to delete this user
+ */
+router.delete('/:id', authenticateToken, deleteUser);
 
 export default router;
