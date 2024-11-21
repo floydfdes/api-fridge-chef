@@ -266,7 +266,7 @@ export const deleteRecipe = async (req: any, res: Response) => {
         }
 
         await Recipe.findByIdAndDelete(id);
-        res.status(204).send(); // No content to send back
+        return res.status(200).json({ message: 'Recipe deleted successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Error deleting recipe', error });
     }
