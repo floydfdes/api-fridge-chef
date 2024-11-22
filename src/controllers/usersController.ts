@@ -72,3 +72,75 @@ export const deleteUser = async (req: any, res: Response) => {
         res.status(500).json({ message: 'Error deleting user', error });
     }
 };
+
+export const followUser = async (req: any, res: Response) => {
+    try {
+        const userIdToFollow = req.params.id;
+        const requestingUserId = req.user?.userId;
+
+        if (requestingUserId === userIdToFollow) {
+            return res.status(400).json({ message: 'You cannot follow yourself' });
+        }
+
+        const userToFollow = await User.findById(userIdToFollow);
+        if (!userToFollow) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        await User.findByIdAndUpdate(userIdToFollow, { $inc: { followersCount: 1 } });
+        await User.findByIdAndUpdate(requestingUserId, { $inc: { followingCount: 1 } });
+
+        res.status(200).json({ message: 'Successfully followed the user' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error following user', error });
+    }
+};
+
+export const unfollowUser = async (req: any, res: Response) => {
+    try {
+        const userIdToUnfollow = req.params.id;
+        const requestingUserId = req.user?.userId;
+
+        if (requestingUserId === userIdToUnfollow) {
+            return res.status(400).json({ message: 'You cannot unfollow yourself' });
+        }
+
+        const userToUnfollow = await User.findById(userIdToUnfollow);
+        if (!userToUnfollow) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        await User.findByIdAndUpdate(userIdToUnfollow, { $inc: { followersCount: -1 } });
+        await User.findByIdAndUpdate(requestingUserId, { $inc: { followingCount: -1 } });
+
+        res.status(200).json({ message: 'Successfully unfollowed the user' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error unfollowing user', error });
+    }
+};
+
+export const getUsers = async (req: Request, res: Response) => {
+    try {
+        const page = Number(req.query.page) || 1;
+        const limit = Number(req.query.limit) || 10;
+        if (page < 1 || limit < 1) {
+            return res.status(400).json({ message: 'Page and limit must be positive numbers' });
+        }
+
+        const users = await User.find()
+            .select('-password')
+            .skip((page - 1) * limit)
+            .limit(limit);
+
+        const totalUsers = await User.countDocuments();
+
+        res.status(200).json({
+            totalUsers,
+            users,
+            currentPage: page,
+            totalPages: Math.ceil(totalUsers / limit),
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching users', error });
+    }
+};
