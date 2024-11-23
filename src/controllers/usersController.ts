@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
+import { processImage, validateImage } from '../utils/imageUtils';
 
 import User from '../models/User';
-import { processImage, validateImage } from '../utils/imageUtils';
 
 export const getUserProfile = async (req: Request, res: Response) => {
     try {
@@ -90,11 +90,20 @@ export const followUser = async (req: any, res: Response) => {
         await User.findByIdAndUpdate(userIdToFollow, { $inc: { followersCount: 1 } });
         await User.findByIdAndUpdate(requestingUserId, { $inc: { followingCount: 1 } });
 
-        res.status(200).json({ message: 'Successfully followed the user' });
+        // Retrieve updated user info
+        const updatedUserToFollow = await User.findById(userIdToFollow);
+        const updatedRequestingUser = await User.findById(requestingUserId);
+
+        res.status(200).json({
+            message: 'Successfully followed the user',
+            updatedUser: updatedUserToFollow,
+            requestingUser: updatedRequestingUser
+        });
     } catch (error) {
         res.status(500).json({ message: 'Error following user', error });
     }
 };
+
 
 export const unfollowUser = async (req: any, res: Response) => {
     try {
@@ -113,11 +122,20 @@ export const unfollowUser = async (req: any, res: Response) => {
         await User.findByIdAndUpdate(userIdToUnfollow, { $inc: { followersCount: -1 } });
         await User.findByIdAndUpdate(requestingUserId, { $inc: { followingCount: -1 } });
 
-        res.status(200).json({ message: 'Successfully unfollowed the user' });
+        // Retrieve updated user info
+        const updatedUserToUnfollow = await User.findById(userIdToUnfollow);
+        const updatedRequestingUser = await User.findById(requestingUserId);
+
+        res.status(200).json({
+            message: 'Successfully unfollowed the user',
+            updatedUser: updatedUserToUnfollow,
+            requestingUser: updatedRequestingUser
+        });
     } catch (error) {
         res.status(500).json({ message: 'Error unfollowing user', error });
     }
 };
+
 
 export const getUsers = async (req: Request, res: Response) => {
     try {
