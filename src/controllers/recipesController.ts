@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 
 import Rating from '../models/Rating';
 import Recipe from '../models/Recipe';
+import User from '../models/User';
 import { mainCategories } from '../utils/constants';
 import { processImage, validateImage } from '../utils/imageUtils';
 
@@ -110,6 +111,9 @@ export const addRecipe = async (req: any, res: Response) => {
         });
 
         const savedRecipe = await newRecipe.save();
+
+        await User.findByIdAndUpdate(userId, { $inc: { recipesCount: 1 } });
+
         res.status(201).json(savedRecipe);
     } catch (error) {
         res.status(500).json({ message: 'Error adding recipe', error });
@@ -269,6 +273,22 @@ export const deleteRecipe = async (req: any, res: Response) => {
         return res.status(200).json({ message: 'Recipe deleted successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Error deleting recipe', error });
+    }
+};
+
+export const getRecipesByUser = async (req: Request, res: Response) => {
+    try {
+        const userId = req.params.id;
+
+        const recipes = await Recipe.find({ createdBy: userId }).populate('createdBy', 'name email profilePicture');
+
+        if (recipes.length === 0) {
+            return res.status(404).json({ message: 'No recipes found for this user' });
+        }
+
+        res.status(200).json(recipes);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching recipes', error });
     }
 };
 

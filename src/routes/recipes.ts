@@ -1,4 +1,4 @@
-import { addRecipe, deleteRecipe, getAllRecipes, getRecipesByCategory, getRecipesByIngredients, getSpecificRecipe, rateRecipe, searchRecipes, updateRecipe } from '../controllers/recipesController';
+import { addRecipe, deleteRecipe, getAllRecipes, getRecipesByCategory, getRecipesByIngredients, getRecipesByUser, getSpecificRecipe, rateRecipe, searchRecipes, updateRecipe } from '../controllers/recipesController';
 
 import express from 'express';
 import { authenticateToken } from '../middleware/auth';
@@ -447,5 +447,32 @@ router.post('/:id/rate', authenticateToken, rateRecipe);
  *         description: Not authorized to delete this recipe
  */
 router.delete('/:id', authenticateToken, deleteRecipe);
+
+/**
+ * @swagger
+ * /recipes/user/{id}:
+ *   get:
+ *     summary: Get all recipes by a specific user
+ *     tags: [Recipes]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID to fetch recipes for
+ *     responses:
+ *       200:
+ *         description: List of recipes created by the user
+ *       404:
+ *         description: No recipes found for this user
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Error fetching recipes
+ */
+router.get('/user/:id', authenticateToken, getRecipesByUser);
 
 export default router;
