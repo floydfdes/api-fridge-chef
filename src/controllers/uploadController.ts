@@ -1,7 +1,5 @@
 import { Request, Response } from 'express';
 
-import FridgeImage from '../models/FridgeImage';
-import axios from 'axios';
 
 interface MulterRequest extends Request {
     file?: Express.Multer.File;
@@ -10,41 +8,22 @@ interface MulterRequest extends Request {
 
 export const uploadFridgeImage = async (req: MulterRequest, res: Response) => {
     try {
-        if (!req.file) {
-            return res.status(400).json({ message: 'No file uploaded' });
+        const fridgeImage = req.file; // Assuming the image is uploaded as a file
+        if (!fridgeImage) {
+            return res.status(400).json({ message: 'No image uploaded' });
         }
 
-        // Validate file type and size
-        const allowedMimeTypes = ['image/jpeg', 'image/png'];
-        if (!allowedMimeTypes.includes(req.file.mimetype)) {
-            return res.status(400).json({ message: 'Invalid file type. Only JPEG and PNG are allowed.' });
-        }
+        // Convert the image to base64
+        const base64Image = fridgeImage.buffer.toString('base64');
 
-        const maxSize = 5 * 1024 * 1024; // 5MB
-        if (req.file.size > maxSize) {
-            return res.status(400).json({ message: 'File too large. Max size is 5MB.' });
-        }
-
-        const userId = req.user?.id;
-        if (!userId) {
-            return res.status(401).json({ message: 'User not authenticated' });
-        }
-
-        // Convert file to base64
-        const base64Image = req.file.buffer.toString('base64');
-
-        // Save the fridge image
-        const fridgeImage = new FridgeImage({
-            userId,
-            imageData: base64Image
+        // Return the base64 image
+        return res.status(200).json({
+            image: `data:${fridgeImage.mimetype};base64,${base64Image}`,
+            message: 'Image uploaded successfully'
         });
-        await fridgeImage.save();
 
-        // Analyze the image using external Python API
-        const pythonApiUrl = process.env.PYTHON_API_URL || 'http://localhost:5000/analyze-image';
-        const analysisResponse = await axios.post(pythonApiUrl, { imageData: base64Image });
-        const detectedIngredients = analysisResponse.data.ingredients;
-
+        // Commenting out the following code for now
+        /*
         // Find recipes based on detected ingredients using existing endpoint
         const recipesApiUrl = `${process.env.API_BASE_URL}/recipes/by-ingredients`;
         const recipesResponse = await axios.post(recipesApiUrl, { ingredients: detectedIngredients });
@@ -56,6 +35,7 @@ export const uploadFridgeImage = async (req: MulterRequest, res: Response) => {
             recommendedRecipes: recipes,
             message: 'Image uploaded successfully and recipes recommended'
         });
+        */
     } catch (error) {
         console.error('Error uploading image and recommending recipes:', error);
         res.status(500).json({ message: 'Internal Server Error' });
