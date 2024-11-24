@@ -9,6 +9,8 @@ interface IUser extends Document {
     recipesCount: number;
     followersCount: number;
     followingCount: number;
+    resetPasswordToken?: string;
+    resetPasswordExpires?: Date;
 }
 
 const userSchema = new Schema<IUser>({
@@ -19,7 +21,9 @@ const userSchema = new Schema<IUser>({
     bio: String,
     recipesCount: { type: Number, default: 0 },
     followersCount: { type: Number, default: 0 },
-    followingCount: { type: Number, default: 0 }
+    followingCount: { type: Number, default: 0 },
+    resetPasswordToken: String,
+    resetPasswordExpires: Date
 }, { timestamps: true });
 
 export default mongoose.model<IUser>('User', userSchema);
